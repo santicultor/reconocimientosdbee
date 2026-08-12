@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reconocimientos DBEE · Un sistema para hacer visible lo invisible</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#00205B; --navy-2:#00387B; --navy-deep:#001640;
+  --gold:#F5C518; --white:#fff; --paper:#F4F5F7; --paper-2:#E7EAF0;
+  --ink:#101B33; --muted:#5A6478; --muted-light:#9FB0CE;
+  --line-dark:rgba(255,255,255,.14); --line-light:rgba(0,32,91,.13);
+  --display:"Playfair Display",Georgia,serif;
+  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"DM Mono",Consolas,monospace;
+  --pad:clamp(24px,4.2vw,80px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--body);background:var(--navy-deep);color:var(--ink);overflow:hidden;-webkit-font-smoothing:antialiased}
+button,input{font-family:inherit}
+
+.deck{position:fixed;inset:0}
+.slide{position:absolute;inset:0;padding:calc(var(--pad)*.62) var(--pad);
+  display:flex;flex-direction:column;justify-content:center;
+  opacity:0;visibility:hidden;transform:translateY(16px);
+  transition:opacity .45s ease,transform .5s cubic-bezier(.22,.7,.3,1),visibility .45s;
+  overflow-y:auto;overflow-x:hidden}
+.slide.is-active{opacity:1;visibility:visible;transform:none;z-index:2}
+.slide--dark{background:var(--navy);color:#fff}
+.slide--deep{background:var(--navy-deep);color:#fff}
+.slide--light{background:var(--paper);color:var(--ink)}
+.inner{width:100%;max-width:1250px;margin:0 auto}
+
+[data-reveal]{opacity:0;transform:translateY(13px)}
+.is-active [data-reveal]{animation:rise .58s cubic-bezier(.22,.7,.3,1) forwards;animation-delay:calc(var(--d,0)*1ms)}
+@keyframes rise{to{opacity:1;transform:none}}
+.fade{animation:rise .35s ease forwards}
+
+.eyebrow{font-family:var(--mono);font-size:clamp(9px,.68vw,11px);letter-spacing:.22em;text-transform:uppercase;
+  color:var(--navy-2);display:flex;align-items:center;gap:13px;margin-bottom:16px}
+.slide--dark .eyebrow,.slide--deep .eyebrow{color:var(--muted-light)}
+.eyebrow .num{color:var(--gold);font-weight:500}
+.eyebrow::after{content:"";flex:1;height:1px;background:var(--line-light)}
+.slide--dark .eyebrow::after,.slide--deep .eyebrow::after{background:var(--line-dark)}
+
+h1{font-family:var(--display);font-weight:500;font-size:clamp(34px,5.6vw,78px);line-height:1.02;letter-spacing:-.015em}
+h1 em{font-style:italic;font-weight:400;color:var(--muted-light);display:block}
+h2{font-family:var(--display);font-weight:500;font-size:clamp(23px,2.8vw,41px);line-height:1.1;letter-spacing:-.01em}
+h3{font-family:var(--body);font-weight:700;font-size:clamp(13px,1vw,15.5px)}
+.lede{font-size:clamp(13.5px,1.02vw,16px);line-height:1.55;color:var(--muted);max-width:68ch;margin-top:13px}
+.slide--dark .lede,.slide--deep .lede{color:var(--muted-light)}
+.tiny{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.slide--dark .tiny,.slide--deep .tiny{color:var(--muted-light)}
+
+/* portada */
+.cover{position:relative}
+.cover .inner{position:relative;z-index:2}
+.cover-kicker{font-family:var(--mono);font-size:clamp(10px,.78vw,12px);letter-spacing:.26em;text-transform:uppercase;color:var(--muted-light);margin-bottom:30px}
+.cover-meta{display:flex;flex-wrap:wrap;gap:30px;margin-top:44px;padding-top:22px;border-top:1px solid var(--line-dark)}
+.cover-meta div{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-light)}
+.cover-meta strong{display:block;font-family:var(--body);font-size:13px;letter-spacing:0;text-transform:none;color:#fff;font-weight:500;margin-top:6px}
+.ambient{position:absolute;inset:0;z-index:1;opacity:.5;pointer-events:none;display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(46px,1fr));align-content:center;gap:26px;padding:var(--pad)}
+.ambient i{display:block;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.13)}
+.ambient i.lit{background:var(--gold);box-shadow:0 0 16px 3px rgba(245,197,24,.45);animation:breathe 4.5s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:.35}50%{opacity:1}}
+
+.grid{display:grid;gap:13px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+.card{background:#fff;border:1px solid var(--line-light);border-radius:12px;padding:17px 16px;border-top:3px solid var(--navy)}
+.card p{font-size:12.5px;line-height:1.52;color:var(--muted);margin-top:7px}
+.stat-card{background:var(--navy);color:#fff;border-radius:14px;padding:20px 18px;text-align:center}
+.stat-card .v{font-family:var(--display);font-size:clamp(30px,3.6vw,48px);line-height:1;color:var(--gold)}
+.stat-card .l{font-size:11.5px;line-height:1.42;color:var(--muted-light);margin-top:9px}
+
+.flip{background:#fff;border:1px solid var(--line-light);border-radius:13px;padding:17px 16px;
+  cursor:pointer;text-align:left;transition:.25s;position:relative;border-top:3px solid transparent;
+  display:flex;flex-direction:column;min-height:168px}
+.flip:hover{border-top-color:var(--gold);transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,32,91,.09)}
+.flip.on{border-top-color:var(--gold);background:var(--navy);box-shadow:0 12px 30px rgba(0,22,64,.24)}
+.flip .emo{font-size:24px;line-height:1;margin-bottom:10px;display:block;transition:.25s}
+.flip.on .emo{transform:scale(1.14)}
+.flip.on h3{color:#fff}
+.flip p{font-size:12px;line-height:1.48;color:var(--muted);margin-top:7px}
+.flip.on p{color:var(--muted-light)}
+.flip .more{display:none;margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.16)}
+.flip.on .more{display:block;animation:rise .3s ease forwards}
+.flip .more b{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:7px}
+.flip .more li{list-style:none;font-size:12px;line-height:1.45;color:#fff;padding-left:13px;position:relative;margin-bottom:4px}
+.flip .more li::before{content:"";position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.flip .cue{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:9px;color:var(--muted);opacity:.65}
+.flip.on .cue{color:var(--gold);opacity:1}
+
+.reasons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.reason{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line-light);border-radius:11px;padding:13px 15px}
+.reason .e{font-size:18px;line-height:1.1;flex:none}
+.reason b{display:block;font-size:13px;color:var(--ink);margin-bottom:3px}
+.reason span{font-size:12px;color:var(--muted);line-height:1.42}
+
+/* niveles */
+.levels{display:grid;grid-template-columns:255px 1fr;gap:28px;margin-top:22px;align-items:start}
+.level-list{display:flex;flex-direction:column;gap:6px}
+.level-btn{width:100%;text-align:left;cursor:pointer;background:transparent;border:1px solid var(--line-dark);
+  border-radius:10px;padding:12px 14px;color:var(--muted-light);transition:.22s}
+.level-btn .lb-freq{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:4px;opacity:.75}
+.level-btn .lb-name{font-family:var(--display);font-size:18px;color:#fff}
+.level-btn:hover{border-color:rgba(245,197,24,.5)}
+.level-btn.on{background:rgba(245,197,24,.1);border-color:var(--gold);color:#fff}
+.level-btn.on .lb-freq{color:var(--gold);opacity:1}
+.level-panel{border-left:2px solid var(--gold);padding-left:26px;min-height:270px}
+.level-panel .role{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.level-panel p{color:var(--muted-light);font-size:14.5px;line-height:1.58;max-width:62ch;margin-top:8px}
+.level-facts{display:flex;gap:32px;flex-wrap:wrap;margin-top:20px;padding-top:16px;border-top:1px solid var(--line-dark)}
+.level-facts div{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-light)}
+.level-facts strong{display:block;font-family:var(--body);font-size:14.5px;letter-spacing:0;text-transform:none;color:#fff;font-weight:500;margin-top:5px}
+.level-cta{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}
+.ghost{cursor:pointer;background:transparent;border:1px solid rgba(245,197,24,.55);color:var(--gold);
+  border-radius:100px;padding:9px 18px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;transition:.2s}
+.ghost:hover{background:var(--gold);color:var(--navy)}
+.ghost.solid{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.ghost.solid:hover{filter:brightness(1.08)}
+.note-aside{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-light);opacity:.6;margin-top:10px}
+
+/* ===== SLIDE 6 compacto ===== */
+.sim{display:grid;grid-template-columns:300px 1fr;gap:32px;margin-top:16px;align-items:start}
+.sim-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.badge{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--navy);
+  background:var(--paper-2);border-radius:100px;padding:5px 12px}
+.dotgrid{display:grid;grid-template-columns:repeat(13,1fr);gap:6px;max-width:290px}
+.dot{aspect-ratio:1;border-radius:50%;border:1.4px solid rgba(0,32,91,.2);background:transparent;transition:.3s}
+.dot.col{background:var(--navy-2);border-color:var(--navy-2)}
+.dot.ind{background:var(--gold);border-color:var(--gold)}
+.legend{display:flex;flex-direction:column;gap:7px;margin-top:16px}
+.legend span{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted)}
+.legend i{width:9px;height:9px;border-radius:50%;display:block;border:1.4px solid rgba(0,32,91,.2);flex:none}
+.readout{margin-top:18px;padding-top:16px;border-top:1px solid var(--line-light)}
+.readout .cap{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+.pct{font-family:var(--display);font-size:48px;line-height:1;color:var(--navy)}
+.pct.hit{color:#1B7F4C}
+.sub{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+.verdict{margin-top:11px;padding:10px 12px;border-radius:9px;font-size:11.5px;line-height:1.45}
+.verdict.ok{background:rgba(27,127,76,.09);color:#166139;border:1px solid rgba(27,127,76,.25)}
+.verdict.no{background:rgba(180,60,30,.08);color:#9A3412;border:1px solid rgba(180,60,30,.22)}
+
+.knobs{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.knob{background:#fff;border:1px solid var(--line-light);border-radius:11px;padding:13px 15px}
+.knob .kl{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:9px;line-height:1.35;min-height:24px}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line-light);background:var(--paper);
+  color:var(--navy);font-size:15px;cursor:pointer;display:grid;place-items:center;transition:.18s;flex:none;line-height:1}
+.stepper button:hover:not(:disabled){background:var(--navy);color:#fff;border-color:var(--navy)}
+.stepper button:disabled{opacity:.3;cursor:default}
+.stepper .val{font-family:var(--display);font-size:26px;color:var(--navy);min-width:38px;text-align:center;line-height:1}
+.knob-foot{font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.35}
+.toggle{display:flex;align-items:center;gap:10px;cursor:pointer;padding:12px 14px;border-radius:11px;background:#fff;border:1px solid var(--line-light);grid-column:span 2}
+.toggle input{width:16px;height:16px;accent-color:var(--navy);cursor:pointer;flex:none}
+.toggle span{font-size:12px;line-height:1.4}
+.sim-actions{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;grid-column:span 2}
+.btn-est{background:var(--navy);color:#fff;border:none;border-radius:100px;padding:11px 22px;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;transition:.2s}
+.btn-est:hover{background:var(--gold);color:var(--navy)}
+.est-out{font-size:12.5px;color:var(--muted);line-height:1.45}
+.est-out b{font-family:var(--mono);font-size:15px;color:var(--navy);display:block;margin-top:2px}
+.btn-reset{background:transparent;border:1px solid var(--line-light);color:var(--muted);border-radius:100px;
+  padding:10px 18px;cursor:pointer;font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase}
+.btn-reset:hover{border-color:var(--navy);color:var(--navy)}
+
+/* cronograma */
+.tl-year{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--gold);margin:18px 0 9px}
+.tl-track{display:grid;grid-template-columns:repeat(12,1fr);gap:5px}
+.tl-m{cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--line-dark);border-radius:8px;
+  padding:10px 5px 11px;text-align:center;transition:.22s;color:var(--muted-light);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase}
+.tl-m:hover{border-color:rgba(245,197,24,.5)}
+.tl-m.empty{opacity:.26;cursor:default}
+.tl-m.on{background:rgba(245,197,24,.13);border-color:var(--gold);color:#fff}
+.tl-m .pips{display:flex;justify-content:center;gap:3px;margin-top:7px;min-height:6px}
+.tl-m .pips i{width:4px;height:4px;border-radius:50%;background:var(--muted-light);display:block}
+.tl-m .pips i.hi{background:var(--gold)}
+.tl-detail{margin-top:18px;border-left:2px solid var(--gold);padding-left:22px;min-height:110px}
+.tl-detail h3{font-family:var(--display);font-weight:500;font-size:22px;color:#fff;margin-bottom:10px}
+.tl-detail ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.tl-detail li{font-size:13.5px;color:var(--muted-light);display:flex;gap:10px;align-items:flex-start;line-height:1.48}
+.tl-detail li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold);flex:none;margin-top:6px}
+
+/* gala */
+.gala-statement{font-family:var(--display);font-weight:400;font-size:clamp(23px,3.2vw,47px);line-height:1.25;letter-spacing:-.01em;max-width:20ch;margin-top:8px}
+.gala-statement b{font-weight:500;color:var(--gold);font-style:italic}
+.gala-anchors{display:flex;gap:48px;flex-wrap:wrap;margin-top:54px;padding-top:24px;border-top:1px solid var(--line-dark)}
+.gala-anchors div{max-width:26ch}
+.gala-anchors b{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:8px}
+.gala-anchors p{font-size:13.5px;color:var(--muted-light);line-height:1.52}
+
+/* ===== SLIDE CLIMA + CALENDARIO ===== */
+.clima{display:grid;grid-template-columns:1fr 1.15fr;gap:32px;margin-top:16px;align-items:start}
+.cal-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:11px;flex-wrap:wrap}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:14px}
+.mo{cursor:pointer;border:1px solid var(--line-light);background:#fff;border-radius:8px;padding:8px 2px 9px;
+  text-align:center;transition:.18s;font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.mo:hover{border-color:var(--navy)}
+.mo.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.mo b{display:block;font-family:var(--body);font-size:14px;margin-top:5px;color:var(--navy);font-weight:700}
+.mo.on b{color:var(--gold)}
+.cal-list{background:#fff;border:1px solid var(--line-light);border-radius:12px;padding:6px 4px;max-height:290px;overflow-y:auto}
+.bd-row{display:flex;align-items:center;gap:13px;padding:9px 13px;border-bottom:1px solid rgba(0,32,91,.05)}
+.bd-row:last-child{border-bottom:none}
+.bd-day{font-family:var(--display);font-size:17px;font-weight:600;color:#fff;background:var(--navy);border-radius:8px;
+  width:38px;height:38px;display:grid;place-items:center;flex:none;letter-spacing:-.02em}
+.bd-row b{font-size:13.5px;font-weight:500;display:block;line-height:1.3}
+.bd-row span{font-size:11px;color:var(--muted);display:block;margin-top:1px}
+
+/* gobierno */
+.people{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.person{background:rgba(255,255,255,.05);border:1px solid var(--line-dark);border-radius:11px;padding:13px 15px;border-left:2px solid var(--gold);display:flex;gap:12px;align-items:center}
+.person b{display:block;font-family:var(--display);font-size:17px;font-weight:500;color:#fff}
+.person span{font-size:11.5px;color:var(--muted-light);display:block;margin-top:2px}
+.duties{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 26px}
+.duty{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line-dark)}
+.duty .k{font-family:var(--mono);font-size:9.5px;color:var(--gold);flex:none;padding-top:3px}
+.duty p{font-size:13px;color:var(--muted-light);line-height:1.48}
+
+/* presupuesto */
+.bud{background:#fff;border:1px solid var(--line-light);border-radius:13px;overflow:hidden}
+.bud-head,.bud-row{display:grid;grid-template-columns:20px 1fr 118px 118px 122px;gap:12px;align-items:center;padding:11px 18px}
+.bud-head{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);background:var(--paper);border-bottom:1px solid var(--line-light)}
+.bud-row{border-bottom:1px solid rgba(0,32,91,.06);transition:.18s;background:#fff}
+.bud-row:hover{background:#FAFBFD}
+.bud-row.on{background:rgba(245,197,24,.07)}
+.bud-tog{background:none;border:none;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--gold);padding:0;text-align:left}
+.bud-nm{font-size:13px;color:var(--ink);cursor:pointer;line-height:1.35}
+.bud-am{font-family:var(--mono);font-size:13.5px;color:var(--ink);text-align:right}
+.num-in{width:100%;background:var(--paper);border:1px solid var(--line-light);border-radius:7px;
+  padding:7px 9px;font-family:var(--mono);font-size:12px;color:var(--navy);text-align:right;transition:.18s}
+.num-in:focus{outline:none;border-color:var(--navy);background:#fff}
+.num-in:disabled{background:transparent;border-color:transparent;color:var(--muted);text-align:right}
+.bud-detail{padding:0 18px 17px 50px;background:rgba(245,197,24,.05);border-bottom:1px solid rgba(0,32,91,.06);display:none}
+.bud-detail.on{display:block;animation:rise .3s ease forwards}
+.bud-detail .calc{font-family:var(--mono);font-size:11.5px;color:var(--navy);background:#fff;border:1px solid var(--line-light);
+  border-radius:8px;padding:9px 12px;display:inline-block;margin:12px 0 10px}
+.bud-detail p{font-size:12.5px;color:var(--muted);line-height:1.5;max-width:80ch}
+.bud-detail .opts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.bud-detail .opts span{font-size:11px;background:#fff;border:1px solid var(--line-light);border-radius:100px;padding:5px 12px;color:var(--muted)}
+.bud-total{display:grid;grid-template-columns:20px 1fr 118px 118px 122px;gap:12px;align-items:baseline;padding:17px 18px;background:var(--navy);color:#fff}
+.bud-total .nm{font-weight:700;font-size:14px;grid-column:2/5}
+.bud-total .am{font-family:var(--display);font-size:27px;color:var(--gold);text-align:right}
+.bud-bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.mini{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line-light);border-radius:100px;padding:6px 8px 6px 16px}
+.mini label{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.mini input{width:52px;background:var(--paper);border:1px solid var(--line-light);border-radius:100px;padding:5px 10px;
+  font-family:var(--mono);font-size:12px;color:var(--navy);text-align:center}
+.mini input:focus{outline:none;border-color:var(--navy)}
+.per-person{margin-top:12px;padding:13px 17px;background:#fff;border:1px solid var(--line-light);border-radius:11px;font-size:13px;color:var(--muted)}
+.per-person b{color:var(--navy);font-family:var(--mono);font-size:14.5px}
+
+/* decisiones */
+.decision{display:grid;grid-template-columns:36px 1fr 175px;gap:18px;align-items:center;padding:15px 0;border-top:1px solid var(--line-light)}
+.decision .k{font-family:var(--mono);font-size:11px;color:var(--gold)}
+.decision h3{font-size:15.5px}
+.decision p{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.48}
+.decision .ask{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);text-align:right}
+.pend{margin-top:22px;padding:16px 20px;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.4);border-radius:11px}
+.pend h3{color:var(--navy);margin-bottom:9px;font-size:13px}
+.pend ul{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:5px 26px}
+.pend li{font-size:12.5px;color:var(--muted);line-height:1.48;padding-left:16px;position:relative}
+.pend li::before{content:"⚠";position:absolute;left:0;color:var(--gold);font-size:10px}
+
+.prof{display:grid;grid-template-columns:repeat(2,1fr);gap:0 32px}
+.prof div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line-light);font-size:12.5px}
+.prof div span:last-child{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,10,30,.86);backdrop-filter:blur(5px);
+  display:none;align-items:center;justify-content:center;padding:30px}
+.modal.on{display:flex;animation:rise .3s ease forwards}
+.modal-box{background:var(--paper);border-radius:18px;width:100%;max-width:1000px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column}
+.modal-head{padding:22px 28px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.modal-head .role{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.modal-head h3{font-family:var(--display);font-weight:500;font-size:25px;color:#fff}
+.modal-close{background:rgba(255,255,255,.12);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:15px;flex:none;transition:.2s}
+.modal-close:hover{background:var(--gold);color:var(--navy)}
+.modal-tabs{display:flex;gap:4px;padding:12px 28px 0;background:var(--navy)}
+.modal-tabs button{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted-light);
+  cursor:pointer;padding:9px 15px;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;transition:.2s}
+.modal-tabs button.on{color:var(--gold);border-bottom-color:var(--gold)}
+.modal-body{padding:26px 28px 32px;overflow-y:auto}
+.steps{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.steps button{background:#fff;border:1px solid var(--line-light);border-radius:100px;padding:7px 15px;cursor:pointer;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);transition:.2s}
+.steps button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.step-cap{font-size:13.5px;color:var(--muted);line-height:1.58;margin-bottom:16px;max-width:78ch}
+
+.mock{background:#fff;border:1px solid var(--line-light);border-radius:13px;overflow:hidden;box-shadow:0 10px 34px rgba(0,32,91,.08)}
+.mock-bar{background:var(--paper-2);padding:9px 15px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line-light)}
+.mock-bar i{width:8px;height:8px;border-radius:50%;background:#C6CEDC;display:block}
+.mock-bar span{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:9px;letter-spacing:.08em}
+.mock-body{padding:22px}
+.mock-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px}
+.mock-cycle{background:var(--navy);color:#fff;border-radius:10px;padding:13px 17px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.mock-cycle b{font-family:var(--display);font-size:18px;font-weight:500}
+.mock-cycle span{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold)}
+.avatars{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.av{display:flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--line-light);border-radius:100px;padding:5px 14px 5px 5px;font-size:12.5px}
+.av.sel{border-color:var(--navy);background:rgba(0,32,91,.06)}
+.av-c{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10.5px;font-weight:700;flex:none}
+.mock-field{background:var(--paper);border:1.5px solid var(--line-light);border-radius:10px;padding:13px 15px;font-size:13px;color:var(--ink);line-height:1.52;margin-bottom:15px}
+.mock-btn{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:11px 22px;font-size:12.5px;font-weight:500;cursor:default}
+.mock-hint{font-size:11.5px;color:var(--muted);margin-top:11px;line-height:1.48;display:flex;gap:8px;align-items:flex-start}
+.mock-hint::before{content:"→";color:var(--gold);font-weight:700}
+.vote-row{display:flex;align-items:center;gap:13px;padding:10px 0;border-bottom:1px solid var(--line-light)}
+.vote-row:last-child{border-bottom:none}
+.vote-row .who{flex:none;width:158px;font-size:12.5px;display:flex;align-items:center;gap:8px}
+.vote-row .why{flex:1;font-size:12px;color:var(--muted);line-height:1.42}
+.vote-row .radio{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--line-light);flex:none}
+.vote-row .radio.on{border:5px solid var(--navy)}
+.bar{flex:1;height:8px;background:var(--paper-2);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--navy-2);border-radius:6px;transition:width .8s cubic-bezier(.22,.7,.3,1)}
+.bar i.win{background:var(--gold)}
+.vote-row .n{font-family:var(--mono);font-size:11.5px;color:var(--muted);width:48px;text-align:right;flex:none}
+.tagwin{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;background:var(--gold);color:var(--navy);border-radius:100px;padding:3px 8px;flex:none}
+.scale{display:flex;gap:5px;flex:none}
+.scale i{width:25px;height:25px;border-radius:7px;background:var(--paper-2);display:grid;place-items:center;
+  font-family:var(--mono);font-size:10.5px;color:var(--muted);font-style:normal}
+.scale i.on{background:var(--navy);color:#fff}
+.jef-card{background:#fff;border:1.5px solid var(--line-light);border-radius:11px;padding:15px}
+.jef-card b{font-size:13px;display:block;margin-bottom:8px}
+.jef-card li{list-style:none;font-size:11.5px;color:var(--muted);line-height:1.42;padding-left:12px;position:relative;margin-bottom:4px}
+.jef-card li::before{content:"";position:absolute;left:0;top:6px;width:4px;height:4px;border-radius:50%;background:var(--navy-2)}
+.prize{background:#fff;border:1px solid var(--line-light);border-radius:12px;padding:16px 18px;display:flex;gap:15px;align-items:flex-start;margin-bottom:9px}
+.prize .e{font-size:22px;flex:none;line-height:1.1}
+.prize b{font-size:14px;display:block;margin-bottom:4px}
+.prize p{font-size:12px;color:var(--muted);line-height:1.48}
+.prize .val{font-family:var(--mono);font-size:13.5px;color:var(--navy);flex:none;margin-left:auto;text-align:right}
+.prize .val small{display:block;font-size:9.5px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.alt-note{font-size:12.5px;color:var(--muted);background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.4);
+  border-radius:10px;padding:12px 15px;line-height:1.52;margin-bottom:16px}
+
+.nav{position:fixed;bottom:18px;right:22px;z-index:20;display:flex;align-items:center;gap:12px}
+.nav button{width:34px;height:34px;border-radius:50%;cursor:pointer;border:1px solid rgba(128,128,128,.4);
+  background:rgba(255,255,255,.08);color:currentColor;font-size:13px;display:grid;place-items:center;transition:.2s;backdrop-filter:blur(6px)}
+.nav button:hover{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.nav .count{font-family:var(--mono);font-size:11px;letter-spacing:.1em;opacity:.75}
+.progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);z-index:30;transition:width .45s cubic-bezier(.22,.7,.3,1);width:0}
+.hint{position:fixed;bottom:22px;left:var(--pad);z-index:20;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.4;transition:opacity .4s}
+.hint.hide{opacity:0}
+.overview{position:fixed;inset:0;background:rgba(0,10,30,.96);z-index:45;padding:48px var(--pad);
+  display:none;grid-template-columns:repeat(4,1fr);gap:12px;align-content:center;overflow-y:auto}
+.overview.on{display:grid}
+.ov{cursor:pointer;background:rgba(255,255,255,.05);border:1px solid var(--line-dark);border-radius:10px;padding:16px;text-align:left;transition:.2s;color:#fff}
+.ov:hover,.ov.on{border-color:var(--gold);background:rgba(245,197,24,.1)}
+.ov b{font-family:var(--mono);font-size:9px;color:var(--gold);letter-spacing:.16em;display:block;margin-bottom:7px}
+.ov span{font-family:var(--display);font-size:15.5px;font-weight:500}
+
+@media (max-width:1080px){
+  .sim,.levels,.clima{grid-template-columns:1fr}
+  .g5,.g3,.reasons{grid-template-columns:repeat(2,1fr)}
+  .people,.duties,.prof,.pend ul,.knobs{grid-template-columns:1fr}
+  .toggle,.sim-actions{grid-column:span 1}
+  .decision{grid-template-columns:30px 1fr;gap:12px}
+  .decision .ask{grid-column:2;text-align:left}
+  .overview{grid-template-columns:repeat(2,1fr)}
+  .tl-track{grid-template-columns:repeat(6,1fr)}
+  .months{grid-template-columns:repeat(6,1fr)}
+  .bud-head{display:none}
+  .bud-row,.bud-total{grid-template-columns:20px 1fr 105px}
+  .bud-row .c-qty,.bud-row .c-unit{display:none}
+  body{overflow:auto}
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}[data-reveal]{opacity:1;transform:none}}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+</style>
+</head>
+<body>
+
+<div class="progress" id="prog"></div>
+<div class="deck" id="deck">
+
+  <!-- 01 PORTADA -->
+  <section class="slide slide--deep cover">
+    <div class="ambient" id="ambient"></div>
+    <div class="inner">
+      <p class="cover-kicker" data-reveal style="--d:60">Dirección de Bienestar y Experiencia del Estudiante</p>
+      <h1 data-reveal style="--d:180">Un sistema para<br><em>hacer visible lo invisible</em></h1>
+      <div class="cover-meta" data-reveal style="--d:420">
+        <div>Presenta<strong>Equipo de Reconocimientos</strong></div>
+        <div>Comité<strong>Abril de 2026</strong></div>
+        <div>Impacto<strong>Táctico</strong></div>
+        <div>Alcance<strong>52 personas · 6 jefaturas</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 POR QUÉ -->
+  <section class="slide slide--light">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">01</span> Por qué lo queremos hacer</p>
+      <h2 data-reveal style="--d:90">En la evaluación de desempeño, reconocimiento<br>fue una de las valoraciones más bajas.</h2>
+      <p class="lede" data-reveal style="--d:180">Ese es el dato que abre la conversación, pero no es la única razón. Hay motivos que van más allá del resultado de una medición.</p>
+      <div class="reasons" data-reveal style="--d:300">
+        <div class="reason"><span class="e">🤍</span><div><b>Fortalecer la cultura de reconocimiento</b><span>Que reconocer sea un hábito del equipo, no un gesto ocasional de quien se acuerda.</span></div></div>
+        <div class="reason"><span class="e">🪄</span><div><b>Hacer visible el trabajo que no se ve</b><span>Buena parte de lo que sostiene la Dirección ocurre detrás de escena y nunca se nombra.</span></div></div>
+        <div class="reason"><span class="e">🧭</span><div><b>Reforzar los valores en el día a día</b><span>Nombrar comportamientos concretos es la forma más directa de enseñar qué valoramos.</span></div></div>
+        <div class="reason"><span class="e">🏡</span><div><b>Aumentar el sentido de pertenencia</b><span>Sentirse valorado es lo que conecta a una persona con el equipo y con sus objetivos.</span></div></div>
+        <div class="reason"><span class="e">🪞</span><div><b>Coherencia con lo que somos</b><span>Somos la Dirección de Bienestar. El cuidado que promovemos hacia afuera empieza adentro.</span></div></div>
+        <div class="reason"><span class="e">📐</span><div><b>Pasar de acciones aisladas a un sistema</b><span>Sostenido, medible y con alguien que responda por él. Eso es lo que hoy no existe.</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 RESPALDO -->
+  <section class="slide slide--light">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">02</span> Respaldo investigativo</p>
+      <h2 data-reveal style="--d:90">Cada decisión de diseño tiene un dato detrás.</h2>
+      <div class="grid g3" style="margin-top:20px">
+        <div class="stat-card" data-reveal style="--d:200"><div class="v"><span class="cnt" data-to="61">0</span>%</div><div class="l">de quienes reciben reconocimiento semanal están activamente comprometidos</div></div>
+        <div class="stat-card" data-reveal style="--d:270"><div class="v"><span class="cnt" data-to="4">0</span>×</div><div class="l">más probabilidad de compromiso cuando es auténtico, equitativo y frecuente</div></div>
+        <div class="stat-card" data-reveal style="--d:340"><div class="v"><span class="cnt" data-to="66">0</span>%</div><div class="l">de quienes no se sienten valorados contemplan renunciar</div></div>
+      </div>
+      <p class="tiny" style="margin:20px 0 10px" data-reveal>Toca cada hallazgo para ver qué decisión de diseño produjo</p>
+      <div class="grid g5" id="findings" data-reveal style="--d:440"></div>
+      <p class="tiny" style="margin-top:16px" data-reveal>Gallup &amp; Workhuman (2024) · Achievers (2025) · Nectar HR (2025) · Bersin by Deloitte · Ayat-e-Zainab et al. (2016) · Rueda &amp; Rueda (2022)</p>
+    </div>
+  </section>
+
+  <!-- 04 CATEGORÍAS -->
+  <section class="slide slide--light">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">03</span> Categorías de reconocimiento</p>
+      <h2 data-reveal style="--d:90">Cinco valores. Uno activo por ciclo.</h2>
+      <p class="lede" data-reveal style="--d:180">Cada ciclo gira alrededor de una categoría, y toda nominación debe justificarse frente al valor activo. Eso obliga a nombrar qué se hizo — que es justo lo que la evidencia señala como determinante.</p>
+      <p class="tiny" style="margin:20px 0 10px" data-reveal>Toca cada valor para ver ejemplos de lo que se reconoce</p>
+      <div class="grid g5" id="values" data-reveal style="--d:320"></div>
+    </div>
+  </section>
+
+  <!-- 05 EL SISTEMA -->
+  <section class="slide slide--dark">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">04</span> El sistema</p>
+      <h2 data-reveal style="--d:90">Cuatro niveles que se alimentan entre sí.</h2>
+      <div class="levels" data-reveal style="--d:220">
+        <div class="level-list" id="levelList"></div>
+        <div class="level-panel" id="levelPanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 COBERTURA -->
+  <section class="slide slide--light">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">05</span> Cobertura</p>
+      <div class="sim-head" data-reveal style="--d:80">
+        <h2>¿A cuántas personas alcanza en un año?</h2>
+        <span class="badge">Proyección · 12 meses de operación</span>
+      </div>
+      <div class="sim" data-reveal style="--d:200">
+        <div>
+          <div class="dotgrid" id="dotgrid"></div>
+          <div class="legend">
+            <span><i style="background:var(--gold);border-color:var(--gold)"></i> Reconocimiento individual</span>
+            <span><i style="background:var(--navy-2);border-color:var(--navy-2)"></i> Solo colectivo</span>
+            <span><i></i> Sin reconocimiento</span>
+          </div>
+          <div class="readout">
+            <span class="cap">Cobertura en 12 meses</span>
+            <div class="pct" id="pct">0%</div>
+            <p class="sub" id="sub"></p>
+            <div class="verdict" id="verdict"></div>
+          </div>
+        </div>
+        <div class="knobs" id="knobs">
+          <div class="knob"><span class="kl">Personas en el equipo</span><div class="stepper" data-k="team" data-min="20" data-max="80"></div><p class="knob-foot">Base actual del listado DBEE</p></div>
+          <div class="knob"><span class="kl">Ganadores de Conexión por ciclo</span><div class="stepper" data-k="cx" data-min="1" data-max="5"></div><p class="knob-foot" id="fCx"></p></div>
+          <div class="knob"><span class="kl">Huella Individual por semestre</span><div class="stepper" data-k="hi" data-min="1" data-max="4"></div><p class="knob-foot" id="fHi"></p></div>
+          <div class="knob"><span class="kl">Jefaturas premiadas por semestre</span><div class="stepper" data-k="he" data-min="1" data-max="4"></div><p class="knob-foot" id="fHe"></p></div>
+          <div class="knob"><span class="kl">Tamaño de la jefatura ganadora</span><div class="stepper" data-k="jef" data-min="4" data-max="16"></div><p class="knob-foot">Personas cubiertas por cada premio colectivo</p></div>
+          <div class="knob"><span class="kl">Legado del Año</span><div class="stepper" data-k="lg" data-min="1" data-max="3"></div><p class="knob-foot">Sale de quienes ya ganaron: no suma cobertura nueva</p></div>
+          <label class="toggle"><input type="checkbox" id="noRep" checked><span>El comité aplica la regla de no repetición</span></label>
+          <div class="sim-actions">
+            <button class="btn-est" id="btnEst">Estimar presupuesto con estos cambios</button>
+            <button class="btn-reset" id="btnReset">Volver a la propuesta</button>
+            <p class="est-out" id="estOut"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 CRONOGRAMA -->
+  <section class="slide slide--dark">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">06</span> Cronograma de entregas</p>
+      <h2 data-reveal style="--d:90">Arranque en septiembre de 2026.</h2>
+      <p class="lede" data-reveal style="--d:160">Cuando hay cierre semestral no hay ciclo mensual: junio y diciembre concentran Huella Individual y Huella de Equipo.</p>
+      <div data-reveal style="--d:240">
+        <p class="tl-year">2026 · ciclo de arranque</p>
+        <div class="tl-track" id="tl26"></div>
+        <p class="tl-year">2027 · primer año completo</p>
+        <div class="tl-track" id="tl27"></div>
+        <div class="tl-detail" id="tlDetail"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 GALA -->
+  <section class="slide slide--deep">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">07</span> La Gala DBEE</p>
+      <p class="gala-statement" data-reveal style="--d:140">Cerrar el año contando <b>de quién fueron los reconocimientos</b>, y reconocer a quienes todavía no habían sido nombrados.</p>
+      <div class="gala-anchors" data-reveal style="--d:420">
+        <div><b>Dónde</b><p>Dentro de la jornada de fin de año de la Dirección. No es un evento aparte.</p></div>
+        <div><b>Qué premia</b><p>La excelencia, los valores institucionales y el progreso de los colaboradores durante el año.</p></div>
+        <div><b>Cómo cierra</b><p>Con el anuncio del Legado del Año, entre quienes ganaron algún nivel.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 CLIMA -->
+  <section class="slide slide--light">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">08</span> Actividades transversales de clima</p>
+      <h2 data-reveal style="--d:90">La capa que alcanza al 100% del equipo.</h2>
+      <div class="clima" data-reveal style="--d:200">
+        <div>
+          <div class="grid" style="gap:10px">
+            <div class="card"><h3>🎂 Cumpleaños</h3><p>El día del cumpleaños se envía automáticamente un correo a todo el equipo y una tarjeta personalizada a la persona, además del bono Unisabana Dinning.</p></div>
+            <div class="card"><h3>🎲 Jornada de Integración Recreativa DBEE</h3><p>Actividades y juegos para toda la Dirección.</p></div>
+            <div class="card"><h3>🎉 Celebraciones del año</h3><p>Amor y Amistad, disfraces, velitas, novena, navidad, año nuevo, día de la madre, del padre, de la mujer, del hombre y del niño.</p></div>
+            <div class="card" style="border-top-color:var(--gold)"><h3>🌟 Logros del equipo</h3><p>Nacimientos, matrimonios y graduaciones. El comité se encarga de mapearlos durante el año para que ninguno pase inadvertido.</p></div>
+            <div class="card"><h3>🎓 Día de la profesión</h3><p>Bono Unisabana Dinning en la fecha de cada profesión, según el listado institucional de 14 fechas.</p></div>
+          </div>
+        </div>
+        <div>
+          <div class="cal-head">
+            <h3>🗓️ Calendario de cumpleaños DBEE</h3>
+            <span class="tiny" id="calCount"></span>
+          </div>
+          <div class="months" id="months"></div>
+          <div class="cal-list" id="calList"></div>
+          <p class="tiny" style="margin-top:11px">Fuente: listado de confirmación del equipo · 52 personas</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 GOBIERNO -->
+  <section class="slide slide--dark">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">09</span> Gobierno del sistema</p>
+      <h2 data-reveal style="--d:90">Comité de Reconocimientos DBEE</h2>
+      <p class="lede" data-reveal style="--d:160">Seis personas de distintas jefaturas. Es lo que convierte el esquema en un sistema: alguien responde por las reglas, por el registro y por la cobertura.</p>
+      <div class="people" data-reveal style="--d:260" id="people"></div>
+      <div class="duties" data-reveal style="--d:380">
+        <div class="duty"><span class="k">01</span><p>Activa cada ciclo y define el valor de la categoría que estará vigente.</p></div>
+        <div class="duty"><span class="k">02</span><p>Verifica que las nominaciones se justifiquen frente al valor activo del ciclo.</p></div>
+        <div class="duty"><span class="k">03</span><p>Resuelve los empates: gana quien no haya sido reconocido antes en el año; si persiste, decide el comité por mayoría simple.</p></div>
+        <div class="duty"><span class="k">04</span><p>Aplica la regla de no repetición: nadie recibe un segundo reconocimiento individual mientras queden personas sin reconocer.</p></div>
+        <div class="duty"><span class="k">05</span><p>Garantiza la confidencialidad de la evaluación 360. Los puntajes individuales no se publican, solo el resultado ganador.</p></div>
+        <div class="duty"><span class="k">06</span><p>Custodia el registro anual de personas reconocidas y reporta la cobertura al cierre de cada semestre.</p></div>
+        <div class="duty"><span class="k">07</span><p>Mapea los logros del equipo — nacimientos, matrimonios y graduaciones — para que ninguno pase inadvertido.</p></div>
+        <div class="duty"><span class="k">08</span><p>Prepara la Gala y el recorrido de las personas reconocidas durante el año.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 PRESUPUESTO -->
+  <section class="slide slide--light">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">10</span> Presupuesto anual estimado</p>
+      <div class="sim-head" data-reveal style="--d:80">
+        <h2>Lo que cuesta el sistema propuesto.</h2>
+        <span class="badge">Los valores son editables para ajustar en vivo</span>
+      </div>
+      <div class="bud-bar" data-reveal style="--d:170" id="budBar"></div>
+      <div class="bud" data-reveal style="--d:230">
+        <div class="bud-head"><span></span><span>Concepto</span><span style="text-align:right">Valor unitario</span><span style="text-align:right">Cantidad/año</span><span style="text-align:right">Total año</span></div>
+        <div id="budget"></div>
+        <div class="bud-total"><span></span><span class="nm">Total anual estimado</span><span class="am" id="budTotal">—</span></div>
+      </div>
+      <div class="per-person" data-reveal style="--d:320">Costo por persona al año: <b id="pp">—</b> · Equivale a lo que cuesta un solo evento mediano, distribuido en 12 meses y todo el equipo.</div>
+    </div>
+  </section>
+
+  <!-- 12 DECISIONES -->
+  <section class="slide slide--light">
+    <div class="inner">
+      <p class="eyebrow" data-reveal style="--d:0"><span class="num">11</span> Qué se aprueba hoy</p>
+      <h2 data-reveal style="--d:90">Cuatro decisiones y podemos arrancar.</h2>
+      <div style="margin-top:14px">
+        <div class="decision" data-reveal style="--d:200"><span class="k">01</span><div><h3>El sistema de cuatro niveles</h3><p>Conexión mensual, Huella Individual semestral, Huella de Equipo semestral y Legado del Año.</p></div><span class="ask">Aprobar el esquema</span></div>
+        <div class="decision" data-reveal style="--d:260"><span class="k">02</span><div><h3>El presupuesto anual</h3><p>Confirmar el monto y la fuente: DBEE o Gestión Humana.</p></div><span class="ask">Aprobar el monto</span></div>
+        <div class="decision" data-reveal style="--d:320"><span class="k">03</span><div><h3>El Comité de Reconocimientos</h3><p>Avalar las reglas de empate, no repetición y confidencialidad que administra el comité.</p></div><span class="ask">Avalar las reglas</span></div>
+        <div class="decision" data-reveal style="--d:380"><span class="k">04</span><div><h3>El arranque en septiembre de 2026</h3><p>Y si el Legado del Año se entrega ya en diciembre de 2026 o hasta cerrar el primer año completo.</p></div><span class="ask">Confirmar fecha</span></div>
+      </div>
+      <div class="pend" data-reveal style="--d:460">
+        <h3>Pendientes por confirmar antes de operar</h3>
+        <ul>
+          <li>Plataforma concreta para nominaciones y votaciones (Microsoft Forms o Teams)</li>
+          <li>Validación con Gestión Humana</li>
+          <li>Fecha y espacio exactos de la Gala dentro de la jornada de fin de año</li>
+          <li>Meta de cobertura y de percepción a alcanzar en la próxima evaluación</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="overview" id="overview"></div>
+<div class="modal" id="modal"><div class="modal-box">
+  <div class="modal-head"><div><p class="role" id="mRole"></p><h3 id="mTitle"></h3></div><button class="modal-close" id="mClose" aria-label="Cerrar">✕</button></div>
+  <div class="modal-tabs" id="mTabs"></div>
+  <div class="modal-body" id="mBody"></div>
+</div></div>
+
+<div class="nav">
+  <button id="prev" aria-label="Anterior">←</button>
+  <span class="count" id="count">01 / 12</span>
+  <button id="next" aria-label="Siguiente">→</button>
+</div>
+<p class="hint" id="hint">← → navegar · Esc índice</p>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+var pad=function(n){return n<10?"0"+n:""+n};
+var fmt=function(n){return "$"+Math.round(n).toLocaleString("es-CO")};
+
+/* ===== cumpleaños ===== */
+var BD=[{"n":"Alexandra Vega Herrera","c":"Coordinador de tu línea amiga","d":7,"m":2},{"n":"Shanon Roxana Espitia Paipilla","c":"Comunicación social y periodismo","d":25,"m":10},{"n":"Constanza Linares Valencia","c":"Jefe De Éxito Academico","d":14,"m":3},{"n":"Erika Diagama Bohorquez","c":"Coordinadora De Gestión De Becarios","d":6,"m":2},{"n":"Jelver Alexander Rodriguez Menjura","c":"Profesional De Acondicionamiento Físico","d":20,"m":1},{"n":"Jenny Andrea Sarmiento Hernandez","c":"Lider De Proyecto Mentis","d":1,"m":1},{"n":"Jose Daniel Restrepo Velasquez","c":"Jefe De Experiencia Bienestar","d":5,"m":8},{"n":"Karen Alexandra Rodriguez Pinzon","c":"Analista de Gestión de Becarios","d":1,"m":10},{"n":"Laura Isabel Marconi Martinez","c":"Jefe De Gestión De Becarios","d":13,"m":2},{"n":"Liliam Julieth Chia Bastidas","c":"Psicóloga Educativa","d":12,"m":1},{"n":"Lizeth Paola Peña Pachon","c":"Medico General","d":24,"m":0},{"n":"Luz Angela Zabala Rojas","c":"Auxiliar Bienestar","d":18,"m":8},{"n":"Magda Lorena Beltran Garavito","c":"Coordinadora Musical","d":6,"m":2},{"n":"Maria Alejandra Rojas Serrato","c":"Auxiliar Bienestar","d":23,"m":8},{"n":"Maria Camila Acevedo Vargas","c":"Enfermera Jefe","d":5,"m":4},{"n":"Maria Carolina Chona","c":"Directora","d":22,"m":11},{"n":"Maria Carolina Marquez Granado","c":"Jefe De Prevención Y Salud","d":14,"m":3},{"n":"Maria Juliana Sierra Ospina","c":"Psicología Línea Amiga","d":3,"m":10},{"n":"Mariana Castro Vaughan","c":"Coordiandora Pat","d":26,"m":7},{"n":"Monica Liliana Cubillos Caicedo","c":"Coordinador Desarrollo Deportivo","d":26,"m":7},{"n":"Natalia Llano Hernandez","c":"Jefe Desarrollo Cultural","d":23,"m":7},{"n":"Nubia Liboria Abella Cadena","c":"Psicóloga Educativa","d":14,"m":11},{"n":"Paula Marcela Alfonso Rojas","c":"Enfermera Jefe","d":18,"m":0},{"n":"Ruth Alejandra Montaño Perez","c":"Coordinadora de Tu Linea Amiga","d":25,"m":9},{"n":"Ruth Alexandra Malaver Camargo","c":"Secretaria Auxiliar","d":3,"m":2},{"n":"Juan David Suarez Silva","c":"Auxiliar Deportivo","d":7,"m":6},{"n":"Santiago Bedoya Barahona","c":"Coordinador De Cultura","d":21,"m":11},{"n":"Magaly Elizabeth Prieto Bernal","c":"Analista de Acompañamiento a Becarios","d":29,"m":4},{"n":"Johan Steven Urrego Linares","c":"Auxiliar Bienestar","d":26,"m":8},{"n":"Camilio Antonio Roncancio Camacho","c":"Coordinador de Experiencia","d":28,"m":5},{"n":"Lizeth Viviana Hernández Salinas","c":"Psicóloga Educativa","d":12,"m":9},{"n":"Lina Johana Jaime Díaz","c":"Médico Deportólogo","d":1,"m":0},{"n":"Maria Claudia Garzón","c":"Analista Gestion de Becarios","d":17,"m":9},{"n":"Camila Gonzalez Cortes","c":"Auxiliar Caf","d":16,"m":4},{"n":"Camilo Jose Londoño Moreno","c":"Jefe de Desarrollo Deportivo","d":24,"m":7},{"n":"Maria Juliana Cortes Briceño","c":"Psicóloga Educativa","d":13,"m":1},{"n":"Maria Jose Perez Abril","c":"Coordinadora de Solidaridad","d":11,"m":11},{"n":"Laura Victoria Jacome Rincon","c":"Psicóloga Educativa","d":5,"m":11},{"n":"Angélica María Alarcón Pardo","c":"Psicóloga Educativa","d":15,"m":0},{"n":"Christopher Andrey Quintero Ovalle","c":"Psicólogo Educativo","d":11,"m":3},{"n":"Luisa Fernanda Lopez Neme","c":"Coordinadora Administrativa","d":4,"m":10},{"n":"Mariangel Cervera Principe","c":"Practicante de Comunicaciones","d":22,"m":11},{"n":"Maria Jose Cordoba Lopez","c":"Practicante SENA","d":19,"m":8},{"n":"Santiago Beltran Pedraza","c":"Practicante SENA","d":18,"m":2},{"n":"Ana Maria Avella Gonzalez","c":"Practicante SENA","d":6,"m":5},{"n":"Gustavo Alejandro Bravo Marin","c":"Practicante SENA","d":14,"m":10},{"n":"Deivy Mateo Bohada Bello","c":"Practicante SENA","d":27,"m":9},{"n":"Yenny Paola Balaguera Arias","c":"Enfermera","d":5,"m":11},{"n":"Leidy Vanesa Adarme Baron","c":"Practicante de Psicología","d":26,"m":1},{"n":"Juan Esteban Palacio Paez","c":"Practicante de Comunicaciones","d":10,"m":8},{"n":"Leidy Carolina Mora Pabon","c":"Aprendiz ICSEF","d":29,"m":0},{"n":"Antonio Jose Lopez Pereira","c":"Practicante de Psicología","d":29,"m":10}];
+
+var FINDINGS=[
+ {e:"⏱️",t:"La frecuencia importa",p:"Gallup recomienda reconocer al menos cada 7 días. El tiempo entre el logro y el reconocimiento erosiona su efecto.",
+  d:["Ciclo mensual permanente, con un valor activo cada vez","La entrega ocurre dentro del mismo ciclo, no acumulada a fin de año"]},
+ {e:"⚖️",t:"Equidad como condición",p:"Sin estructura, el reconocimiento favorece a quienes ya son visibles. Un sistema garantiza distribución justa.",
+  d:["Se garantiza al menos un postulado por cada una de las 6 jefaturas","Regla de no repetición administrada por el comité"]},
+ {e:"🧠",t:"Dopamina y desempeño",p:"El reconocimiento libera dopamina, lo que favorece atención y concentración. Impacta productividad y motivación.",
+  d:["Reconocer cerca del logro, no meses después","Nombrar la acción concreta, no la persona en abstracto"]},
+ {e:"🤝",t:"Entre pares pesa más",p:"Puede ser más valorado que el de un superior. Genera cultura horizontal e inclusiva.",
+  d:["Los tres primeros niveles se deciden por votación del equipo","La Huella Individual es una evaluación 360 entre pares"]},
+ {e:"🎁",t:"Tangible + intangible",p:"El 65% prefiere reconocimiento no monetario cuando es personalizado. La clave: nombrar qué se hizo y por qué importó.",
+  d:["El premio siempre va acompañado de la justificación pública","Se combinan bonos con pertenencia institucional y experiencias"]}
+];
+
+var VALUES=[
+ {e:"🎯",t:"Trabajo bien hecho",p:"Lograr objetivos con calidad y propósito. No solo cumplir — hacerlo bien y con impacto real.",
+  d:["Entregar un proceso completo, sin que haya que devolverlo","Sostener la calidad cuando el tiempo aprieta","Cerrar un pendiente que llevaba meses abierto"]},
+ {e:"🤝",t:"Trabajo en equipo",p:"Fortalecer relaciones, generar confianza y promover un ambiente colaborativo y positivo.",
+  d:["Apoyar a otra jefatura sin que se lo pidan","Destrabar una conversación difícil","Integrar a alguien que acaba de entrar al equipo"]},
+ {e:"🪄",t:"Trabajo invisible",p:"El trabajo que no siempre se ve pero lo sostiene todo. Acciones detrás de escena que hacen que funcione.",
+  d:["Sostener la logística que nadie alcanza a notar","Anticipar un problema antes de que ocurra","Cubrir a un compañero sin anunciarlo"]},
+ {e:"💡",t:"Innovación y servicio",p:"Proponer ideas y mejoras. Incluye la capacidad de servir mejor a otras personas dentro y fuera del equipo.",
+  d:["Proponer una forma más simple de hacer algo","Crear una herramienta que le ahorra tiempo al equipo","Resolver mejor la solicitud de un estudiante"]},
+ {e:"🌱",t:"Cuidado y sostenibilidad",p:"Cuidar a las personas, al equipo y los procesos. Promover bienestar, equilibrio y solución de problemas.",
+  d:["Estar pendiente del bienestar de alguien del equipo","Manejar bien una situación compleja","Cuidar los recursos y dejar los procesos ordenados"]}
+];
+
+var LEVELS=[
+ {name:"Conexión",freq:"Mensual",role:"Reconocimiento individual por valores",
+  text:"Cualquier persona del equipo puede nominar a alguien. Se garantiza al menos un postulado por cada una de las seis jefaturas, el equipo vota y las personas más votadas ganan. Cada ciclo gira alrededor de una categoría de valor. En junio y diciembre no hay ciclo: esos meses los ocupa el cierre semestral.",
+  facts:[["Quién decide","Votación de todo el equipo"],["Ciclos al año","10"],["Ganadores","2 por ciclo"]]},
+ {name:"Huella Individual",freq:"Semestral",role:"Evaluación entre pares",
+  text:"Evaluación 360 entre pares de jefatura y mesas de trabajo, con calificación de 1 a 5 sobre los aspectos definidos al inicio del semestre. El equipo dedica 15 minutos a calificar y la persona con mayor puntaje gana. Los puntajes individuales son confidenciales.",
+  facts:[["Quién decide","Pares, escala de 1 a 5"],["Cierres al año","2 · junio y diciembre"],["Ganadores","1 por semestre"]]},
+ {name:"Huella de Equipo",freq:"Semestral · grupal",role:"Reconocimiento colectivo por jefatura",
+  text:"Cada jefatura presenta los logros alcanzados durante el semestre para que sean visibles ante todo el equipo. Los demás integrantes votan según su percepción y la jefatura más votada recibe el reconocimiento colectivo. Es el nivel que permite acercarse a la meta de cobertura.",
+  facts:[["Quién decide","Votación de todo el equipo"],["Cierres al año","2 · junio y diciembre"],["Ganadores","1 jefatura por semestre"]]},
+ {name:"Legado del Año",freq:"Anual",role:"Reconocimiento integral",
+  text:"Solo quienes ganaron algún nivel durante el año participan en la votación final. Se entrega en la Gala, donde además se reconoce a todos los ganadores del año.",
+  facts:[["Quién decide","Votación entre ganadores del año"],["Entregas al año","1 · en la Gala"],["Ganadores","1 persona"]]}
+];
+
+var PRIZES=[
+ {alt:"Las cuatro opciones son alternativas. Cada ciclo se entregan dos premios y el comité rota las opciones para que no se repitan siempre las mismas.",
+  items:[
+   {e:"🎟️",n:"Bono Aliados",d:"Falabella, Compensar o Crepes & Waffles",v:200000},
+   {e:"🏛️",n:"Pasaporte Parque Jaime Duque + Cine",d:"Pasaporte para 2 personas más entradas dobles con confitería",v:178300},
+   {e:"🎢",n:"Entrada Multiparque + Cine",d:"Entrada para 2 personas más entradas dobles con confitería",v:188800},
+   {e:"🎽",n:"Kit Institucional",d:"Hoodie Unisabana + Gorra Unisabana",v:265000}]},
+ {alt:"El bono se acompaña siempre del componente de pertenencia institucional.",
+  items:[
+   {e:"💳",n:"Bono semestral",d:"Falabella o Compensar",v:600000},
+   {e:"🍽️",n:"Almuerzo con Rectoría o Vicerrectoría",d:"Componente de pertenencia institucional",v:null}]},
+ {alt:"El premio es para toda la jefatura ganadora. El equipo elige la modalidad de mayor interés.",
+  items:[
+   {e:"🌤️",n:"Jornada de bienestar fuera de la Universidad",d:"Costo estimado por persona de la jefatura",v:100000}]},
+ {alt:"Un único reconocimiento al año, entregado en la Gala frente a toda la Dirección.",
+  items:[
+   {e:"🏆",n:"Bono anual",d:"Falabella, Aviatur o Compensar",v:1000000}]}
+];
+
+var CO=["#00205B","#00387B","#1B5E8C","#3C6E9E","#0A4A7A","#254B78"];
+function av(n,i){var p=n.trim().split(/\s+/);
+  return '<span class="av-c" style="background:'+CO[i%CO.length]+'">'+(p[0][0]+(p[1]?p[1][0]:"")).toUpperCase()+'</span>'}
+
+var FLOWS=[
+ [{t:"Nominar",cap:"Cualquier persona del equipo entra al formulario del ciclo. Lo primero que ve es cuál es el valor activo: eso enmarca la nominación y evita que se convierta en un concurso de popularidad.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Conexión · ciclo de octubre</span></div><div class="mock-body">'+
+    '<div class="mock-cycle"><div><span>Valor activo del ciclo</span><b>🪄 Trabajo invisible</b></div><span>Cierra el 20 de octubre</span></div>'+
+    '<span class="mock-label">¿A quién quieres nominar?</span><div class="avatars">'+
+    ['Daniela Ríos','Mateo Fajardo','Carolina Vélez','Andrés Melo'].map(function(n,i){return '<span class="av'+(i===1?' sel':'')+'">'+av(n,i)+n+'</span>'}).join("")+
+    '</div><span class="mock-label">¿Qué hizo y por qué importó?</span>'+
+    '<div class="mock-field">Reorganizó toda la logística del evento cuando cambió la sede a última hora. Nadie del público lo notó, y esa es exactamente la razón por la que hay que nombrarlo.</div>'+
+    '<button class="mock-btn">Enviar nominación</button>'+
+    '<p class="mock-hint">El comité verifica que haya al menos un postulado por cada una de las seis jefaturas antes de abrir la votación.</p></div></div>'},
+  {t:"Votar",cap:"Se abre la votación con los postulados y su justificación. Cada persona vota una vez. Las justificaciones son visibles: leerlas es parte del reconocimiento, no solo el resultado.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Votación abierta · 3 días</span></div><div class="mock-body">'+
+    [['Daniela Ríos','Sostuvo la atención a estudiantes durante toda la semana de cierre',0],
+     ['Mateo Fajardo','Reorganizó la logística del evento cuando cambió la sede',1],
+     ['Carolina Vélez','Dejó documentado un proceso que solo ella conocía',0],
+     ['Andrés Melo','Cubrió turnos sin anunciarlo para que nadie quedara solo',0],
+     ['Valentina Ospina','Depuró la base de datos que venía arrastrando errores',0],
+     ['Julián Peláez','Preparó el material de todas las sesiones con anticipación',0]]
+    .map(function(r,i){return '<div class="vote-row"><span class="who">'+av(r[0],i)+r[0]+'</span><span class="why">'+r[1]+'</span><span class="radio'+(r[2]?' on':'')+'"></span></div>'}).join("")+
+    '<p class="mock-hint">Nombres de ejemplo, únicamente para ilustrar la interfaz.</p></div></div>'},
+  {t:"Resultado",cap:"Las personas más votadas ganan. El anuncio incluye la justificación completa, porque lo que produce el efecto no es el premio sino que se nombre públicamente qué se hizo.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Resultado del ciclo</span></div><div class="mock-body">'+
+    [['Mateo Fajardo',31,1],['Daniela Ríos',24,1],['Andrés Melo',17,0],['Carolina Vélez',12,0],['Valentina Ospina',9,0],['Julián Peláez',7,0]]
+    .map(function(r,i){return '<div class="vote-row"><span class="who">'+av(r[0],i)+r[0]+'</span><span class="bar"><i class="'+(r[2]?'win':'')+'" style="width:'+(r[1]*3.2)+'%"></i></span><span class="n">'+r[1]+'%</span>'+(r[2]?'<span class="tagwin">Gana</span>':'')+'</div>'}).join("")+
+    '<p class="mock-hint">Los ganadores eligen entre las alternativas de premio del ciclo.</p></div></div>'}],
+ [{t:"Definir aspectos",cap:"Al inicio del semestre el comité publica los aspectos sobre los que se va a calificar. Que se conozcan desde el principio es lo que hace que la evaluación sea legítima y no una sorpresa.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Aspectos del semestre · publicados en febrero</span></div><div class="mock-body">'+
+    ['Calidad y cumplimiento en lo que entrega','Disposición para apoyar a otras jefaturas','Claridad y oportunidad al comunicarse','Aporte de ideas y mejoras al equipo','Cuidado en el trato con las personas']
+    .map(function(a,i){return '<div class="vote-row"><span class="why" style="flex:1">'+(i+1)+'. '+a+'</span><span class="scale"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span></div>'}).join("")+
+    '<p class="mock-hint">Los aspectos quedan fijos durante todo el semestre.</p></div></div>'},
+  {t:"Evaluar 360",cap:"El equipo dedica 15 minutos a calificar a sus pares de jefatura y de mesas de trabajo, en escala de 1 a 5. Solo se califica a quienes se tiene interacción real de trabajo.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Evaluación 360 · 15 minutos</span></div><div class="mock-body">'+
+    '<span class="mock-label">Calidad y cumplimiento en lo que entrega</span>'+
+    [['Daniela Ríos',5],['Mateo Fajardo',4],['Carolina Vélez',5],['Andrés Melo',4]]
+    .map(function(r,i){return '<div class="vote-row"><span class="who">'+av(r[0],i)+r[0]+'</span><span class="scale" style="margin-left:auto">'+[1,2,3,4,5].map(function(n){return '<i class="'+(n===r[1]?"on":"")+'">'+n+'</i>'}).join("")+'</span></div>'}).join("")+
+    '<p class="mock-hint">Solo aparecen las personas con quienes existe interacción de trabajo en el semestre.</p></div></div>'},
+  {t:"Resultado",cap:"Gana el mayor puntaje promedio. El comité publica únicamente el resultado ganador: los puntajes individuales de todas las demás personas son confidenciales.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Cierre semestral</span></div><div class="mock-body">'+
+    '<div class="vote-row"><span class="who">'+av("Carolina Vélez",2)+'Carolina Vélez</span><span class="bar"><i class="win" style="width:94%"></i></span><span class="n">4,7</span><span class="tagwin">Gana</span></div>'+
+    '<div class="vote-row"><span class="who" style="opacity:.45">'+av("R E",3)+'Resto del equipo</span><span class="why" style="opacity:.6">Puntajes confidenciales · no se publican</span></div>'+
+    '<p class="mock-hint">Solo se comunica el nombre de quien obtiene el mayor puntaje.</p></div></div>'}],
+ [{t:"Presentar logros",cap:"Cada jefatura publica sus logros del semestre. Este paso vale por sí solo: aunque no gane, el equipo entero se entera de lo que hacen las demás áreas — que es justamente el problema de la visibilidad.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Logros del semestre · 6 jefaturas</span></div><div class="mock-body"><div class="grid g3" style="gap:11px">'+
+    ['Jefatura A','Jefatura B','Jefatura C'].map(function(j){return '<div class="jef-card"><b>'+j+'</b><li>Logro reportado del semestre</li><li>Logro reportado del semestre</li><li>Logro reportado del semestre</li></div>'}).join("")+
+    '</div><p class="mock-hint">Cada jefatura define y entrega sus propios logros.</p></div></div>'},
+  {t:"Votar",cap:"Todo el equipo vota según su percepción de los logros presentados. Es una votación sobre resultados visibles, no sobre simpatía.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Votación · una por persona</span></div><div class="mock-body">'+
+    ['Jefatura A','Jefatura B','Jefatura C','Jefatura D','Jefatura E','Jefatura F']
+    .map(function(j,i){return '<div class="vote-row"><span class="who">'+j+'</span><span class="why">Logros publicados del semestre</span><span class="radio'+(i===2?' on':'')+'"></span></div>'}).join("")+
+    '<p class="mock-hint">El comité define si una persona puede votar por su propia jefatura. ⚠ Pendiente de decisión.</p></div></div>'},
+  {t:"Resultado",cap:"La jefatura más votada recibe el reconocimiento colectivo: una jornada de bienestar fuera de la Universidad. Este es el nivel que hace que el sistema alcance a más gente.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Jefatura ganadora del semestre</span></div><div class="mock-body">'+
+    [['Jefatura C',34,1],['Jefatura A',22,0],['Jefatura F',18,0],['Jefatura B',12,0],['Jefatura D',8,0],['Jefatura E',6,0]]
+    .map(function(r){return '<div class="vote-row"><span class="who">'+r[0]+'</span><span class="bar"><i class="'+(r[2]?'win':'')+'" style="width:'+(r[1]*2.8)+'%"></i></span><span class="n">'+r[1]+'%</span>'+(r[2]?'<span class="tagwin">Gana</span>':'')+'</div>'}).join("")+
+    '<p class="mock-hint">Todas las personas de la jefatura ganadora quedan cubiertas por el reconocimiento.</p></div></div>'}],
+ [{t:"Elegibles",cap:"Solo participan quienes ganaron algún nivel durante el año. La lista se arma sola con el registro que lleva el comité.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Elegibles · ganadores del año</span></div><div class="mock-body"><div class="avatars">'+
+    ['Daniela Ríos','Mateo Fajardo','Carolina Vélez','Andrés Melo','Valentina Ospina','Julián Peláez']
+    .map(function(n,i){return '<span class="av">'+av(n,i)+n+'</span>'}).join("")+
+    '</div><p class="mock-hint">La lista sale del registro anual de personas reconocidas que custodia el comité.</p></div></div>'},
+  {t:"Criterios",cap:"La decisión no es solo de votación: combina los logros del año, las métricas del cargo y la evaluación de desempeño. Es el único nivel donde entran datos duros.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Criterios de la decisión final</span></div><div class="mock-body">'+
+    [['🏅','Logros alcanzados durante el año'],['📊','Métricas y progreso frente al periodo anterior'],['📋','Evaluación de desempeño'],['🗳️','Votación entre los ganadores del año']]
+    .map(function(r){return '<div class="vote-row"><span class="who"><span style="font-size:18px">'+r[0]+'</span></span><span class="why" style="font-size:13px;color:var(--ink)">'+r[1]+'</span></div>'}).join("")+
+    '<p class="mock-hint">⚠ Pendiente definir el peso de cada criterio en la decisión final.</p></div></div>'},
+  {t:"Anuncio",cap:"Se anuncia en la Gala, al cierre de la jornada de fin de año, después de recorrer la historia de todos los reconocidos del año.",
+   html:'<div class="mock"><div class="mock-bar"><i></i><i></i><i></i><span>Gala DBEE · diciembre</span></div><div class="mock-body" style="text-align:center;padding:38px 22px">'+
+    '<div style="font-size:38px;margin-bottom:12px">🏆</div><p style="font-family:var(--display);font-size:25px;color:var(--navy)">Legado del Año</p>'+
+    '<p style="font-size:13px;color:var(--muted);margin-top:9px;line-height:1.52">El anuncio cierra la jornada. Antes se proyecta el recorrido<br>de todas las personas reconocidas durante el año.</p></div></div>'}]
+];
+
+var PEOPLE=[
+ ["Alex Rodríguez","Profesional de Acondicionamiento Físico"],
+ ["Claudia Garzón","Analista de Gestión de Becarios"],
+ ["Luz Ángela Zabala","Auxiliar de Bienestar"],
+ ["Nubia Abella","Psicóloga Educativa"],
+ ["Paola Peña","Médica"],
+ ["Santiago Bedoya","Coordinador de Desarrollo Cultural"]
+];
+
+var M=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+var MM=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+var CX="Conexión · ganadores del ciclo mensual";
+var TL={
+ "2026-8":["Lanzamiento del sistema y socialización al equipo",CX,"Se abre el registro de fechas importantes para cumpleaños"],
+ "2026-9":[CX,"Día de la profesión: Administración, Medicina del Deporte, Psicología, Filosofía, Música"],
+ "2026-10":[CX],
+ "2026-11":["Sin ciclo mensual · mes de cierre semestral","Huella Individual · cierre 2026-2","Huella de Equipo · cierre 2026-2","Gala DBEE dentro de la jornada de fin de año","⚠ Decidir si el Legado del Año 2026 se entrega con solo 4 meses de operación","Día de la profesión: Medicina"],
+ "2027-0":[CX],"2027-1":[CX],"2027-2":[CX],
+ "2027-3":[CX,"Jornada de Integración Recreativa DBEE"],
+ "2027-4":[CX,"Día de la profesión: Enfermería, Pedagogía, Docentes, Entrenadores, Ing. Industrial"],
+ "2027-5":["Sin ciclo mensual · mes de cierre semestral","Huella Individual · cierre 2027-1","Huella de Equipo · cierre 2027-1","Día de la profesión: Practicantes"],
+ "2027-6":[CX,"Día de la profesión: Auxiliares de Enfermería"],
+ "2027-7":[CX,"Día de la profesión: Comunicación Social"],
+ "2027-8":[CX],"2027-9":[CX],
+ "2027-10":[CX,"Día de la profesión: Administración, Medicina del Deporte, Psicología, Filosofía, Música"],
+ "2027-11":["Sin ciclo mensual · mes de cierre semestral","Huella Individual · cierre 2027-2","Huella de Equipo · cierre 2027-2","Gala DBEE y entrega del Legado del Año 2027","Día de la profesión: Medicina"]
+};
+
+var CICLOS=10;
+var BASE={team:52,cx:2,hi:1,he:1,jef:5,lg:1};
+var S={team:52,cx:2,hi:1,he:1,jef:5,lg:1,noRep:true};
+var B={team:52,cx:2,hi:1,he:1,jef:5,lg:1,
+       uCx:208025,uHi:600000,uHe:100000,uLg:1000000,uCump:30000,uProf:20000};
+
+/* ===== navegación ===== */
+var slides=[].slice.call(document.querySelectorAll(".slide")),idx=0;
+function go(i){
+  if(i<0||i>=slides.length)return;
+  slides[idx].classList.remove("is-active");
+  idx=i;var s=slides[idx];
+  s.classList.remove("is-active");void s.offsetWidth;s.classList.add("is-active");s.scrollTop=0;
+  $("count").textContent=pad(idx+1)+" / "+pad(slides.length);
+  $("prog").style.width=((idx+1)/slides.length*100)+"%";
+  var light=s.classList.contains("slide--light");
+  document.body.style.background=light?"var(--paper)":"var(--navy-deep)";
+  document.querySelector(".nav").style.color=light?"var(--ink)":"#fff";
+  $("hint").style.color=light?"var(--ink)":"#fff";
+  [].forEach.call(document.querySelectorAll(".ov"),function(b,j){b.classList.toggle("on",j===idx)});
+  if(idx>0)$("hint").classList.add("hide");
+  if(s.querySelector(".cnt"))countUp(s);
+}
+$("next").onclick=function(){go(idx+1)};
+$("prev").onclick=function(){go(idx-1)};
+document.addEventListener("keydown",function(e){
+  var mo=$("modal"),ov=$("overview");
+  if(e.key==="Escape"){ if(mo.classList.contains("on")){mo.classList.remove("on")} else {ov.classList.toggle("on")} return }
+  if(mo.classList.contains("on")||ov.classList.contains("on"))return;
+  if(/^(input|textarea)$/i.test((e.target.tagName||"")))return;
+  if(e.key==="ArrowRight"||e.key==="PageDown"||e.key===" "){e.preventDefault();go(idx+1)}
+  if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();go(idx-1)}
+  if(e.key==="Home")go(0);
+  if(e.key==="End")go(slides.length-1);
+});
+var tx=0;
+document.addEventListener("touchstart",function(e){tx=e.touches[0].clientX},{passive:true});
+document.addEventListener("touchend",function(e){
+  if($("modal").classList.contains("on"))return;
+  var d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>70)go(idx+(d<0?1:-1));
+},{passive:true});
+
+var TITLES=["Portada","Por qué lo hacemos","Respaldo investigativo","Categorías","El sistema","Cobertura","Cronograma","La Gala DBEE","Clima transversal","Gobierno","Presupuesto","Qué se aprueba"];
+TITLES.forEach(function(t,i){
+  var b=document.createElement("button");
+  b.className="ov";b.innerHTML="<b>"+pad(i+1)+"</b><span>"+t+"</span>";
+  b.onclick=function(){$("overview").classList.remove("on");go(i)};
+  $("overview").appendChild(b);
+});
+function countUp(slide){
+  [].forEach.call(slide.querySelectorAll(".cnt"),function(el){
+    var to=parseFloat(el.getAttribute("data-to")),t0=null;
+    function step(t){if(!t0)t0=t;var p=Math.min((t-t0)/1000,1);
+      el.textContent=Math.round(to*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step)}
+    el.textContent="0";requestAnimationFrame(step);
+  });
+}
+var amb=$("ambient");
+for(var a=0;a<160;a++){var i2=document.createElement("i");
+  if(Math.random()<.14){i2.className="lit";i2.style.animationDelay=(Math.random()*4.5).toFixed(2)+"s"}
+  amb.appendChild(i2)}
+
+/* ===== flips ===== */
+function buildFlips(host,data,label){
+  data.forEach(function(d){
+    var b=document.createElement("button");b.className="flip";
+    b.innerHTML='<span class="cue">+</span><span class="emo">'+d.e+'</span><h3>'+d.t+'</h3><p>'+d.p+'</p>'+
+      '<div class="more"><b>'+label+'</b><ul>'+d.d.map(function(x){return "<li>"+x+"</li>"}).join("")+'</ul></div>';
+    b.onclick=function(){var was=b.classList.contains("on");
+      [].forEach.call(host.children,function(c){c.classList.remove("on");c.querySelector(".cue").textContent="+"});
+      if(!was){b.classList.add("on");b.querySelector(".cue").textContent="−"}};
+    host.appendChild(b);
+  });
+}
+buildFlips($("findings"),FINDINGS,"Decisión de diseño que produjo");
+buildFlips($("values"),VALUES,"Ejemplos de lo que se reconoce");
+
+/* ===== niveles ===== */
+var list=$("levelList"),panel=$("levelPanel"),cur=0;
+LEVELS.forEach(function(L,i){
+  var b=document.createElement("button");
+  b.className="level-btn"+(i===0?" on":"");
+  b.innerHTML='<span class="lb-freq">'+L.freq+'</span><span class="lb-name">'+L.name+'</span>';
+  b.onclick=function(){[].forEach.call(list.children,function(c){c.classList.remove("on")});b.classList.add("on");drawLevel(i)};
+  list.appendChild(b);
+});
+function drawLevel(i){
+  cur=i;var L=LEVELS[i];
+  panel.innerHTML='<p class="role">'+L.role+'</p><h2>'+L.name+'</h2><p>'+L.text+'</p>'+
+    '<div class="level-facts">'+L.facts.map(function(f){return "<div>"+f[0]+"<strong>"+f[1]+"</strong></div>"}).join("")+'</div>'+
+    '<div class="level-cta"><button class="ghost" data-m="flow">Ver cómo funciona</button><button class="ghost" data-m="prize">Ver premios en detalle</button></div>';
+  panel.querySelector('[data-m="flow"]').onclick=function(){openModal(i,"flow")};
+  panel.querySelector('[data-m="prize"]').onclick=function(){openModal(i,"prize")};
+  panel.classList.remove("fade");void panel.offsetWidth;panel.classList.add("fade");
+}
+drawLevel(0);
+
+/* ===== modal ===== */
+var mTab="flow",mStep=0;
+function openModal(i,tab){
+  cur=i;mTab=tab;mStep=0;
+  $("mRole").textContent=LEVELS[i].freq+" · "+LEVELS[i].role;
+  $("mTitle").textContent=LEVELS[i].name;
+  $("mTabs").innerHTML="";
+  [["flow","Cómo funciona"],["prize","Premios"]].forEach(function(t){
+    var b=document.createElement("button");b.textContent=t[1];b.className=(t[0]===mTab?"on":"");
+    b.onclick=function(){mTab=t[0];mStep=0;
+      [].forEach.call($("mTabs").children,function(c){c.classList.remove("on")});b.classList.add("on");renderModal()};
+    $("mTabs").appendChild(b);
+  });
+  $("modal").classList.add("on");renderModal();
+}
+function renderModal(){
+  var body=$("mBody");
+  if(mTab==="prize"){
+    var P=PRIZES[cur];
+    body.innerHTML='<div class="alt-note">'+P.alt+'</div>'+P.items.map(function(p){
+      return '<div class="prize"><span class="e">'+p.e+'</span><div><b>'+p.n+'</b><p>'+p.d+'</p></div>'+
+        '<span class="val">'+(p.v?fmt(p.v):"—")+(p.v?'<small>'+(cur===2?"Por persona":"Valor estimado")+'</small>':"")+'</span></div>';
+    }).join("");
+  }else{
+    var F=FLOWS[cur],s=F[mStep];
+    body.innerHTML='<div class="steps">'+F.map(function(x,j){
+        return '<button class="'+(j===mStep?"on":"")+'" data-s="'+j+'">Paso '+(j+1)+" · "+x.t+'</button>'}).join("")+'</div>'+
+      '<p class="step-cap">'+s.cap+'</p>'+s.html;
+    [].forEach.call(body.querySelectorAll("[data-s]"),function(b){
+      b.onclick=function(){mStep=+b.getAttribute("data-s");renderModal()}});
+  }
+  body.scrollTop=0;body.classList.remove("fade");void body.offsetWidth;body.classList.add("fade");
+}
+$("mClose").onclick=function(){$("modal").classList.remove("on")};
+$("modal").onclick=function(e){if(e.target===this)this.classList.remove("on")};
+
+/* ===== simulador ===== */
+[].forEach.call(document.querySelectorAll(".stepper"),function(st){
+  var k=st.getAttribute("data-k"),mn=+st.getAttribute("data-min"),mx=+st.getAttribute("data-max");
+  st.innerHTML='<button data-d="-1" aria-label="Menos">−</button><span class="val"></span><button data-d="1" aria-label="Más">+</button>';
+  [].forEach.call(st.querySelectorAll("button"),function(b){
+    b.onclick=function(){
+      var v=S[k]+(+b.getAttribute("data-d"));
+      if(v<mn||v>mx)return;S[k]=v;sim();}
+  });
+  st._mn=mn;st._mx=mx;st._k=k;
+});
+function paintSteppers(){
+  [].forEach.call(document.querySelectorAll(".stepper"),function(st){
+    st.querySelector(".val").textContent=S[st._k];
+    st.querySelector('[data-d="-1"]').disabled=S[st._k]<=st._mn;
+    st.querySelector('[data-d="1"]').disabled=S[st._k]>=st._mx;
+  });
+}
+function sim(){
+  var t=S.team,
+      ind=Math.min(t,S.cx*CICLOS+S.hi*2),
+      col=Math.min(t,S.jef*S.he*2),
+      total=S.noRep?Math.min(t,ind+col):Math.round(ind+col-(ind*col/t)),
+      colOnly=Math.max(0,total-ind),
+      pctN=Math.round(total/t*100),hit=pctN>=80;
+  var g=$("dotgrid");g.innerHTML="";
+  for(var i=0;i<t;i++){
+    var d=document.createElement("div");
+    d.className="dot"+(i<ind?" ind":(i<total?" col":""));
+    d.style.transitionDelay=(i*6)+"ms";g.appendChild(d);
+  }
+  var p=$("pct");p.textContent=pctN+"%";p.classList.toggle("hit",hit);
+  $("sub").textContent=total+" de "+t+" personas · "+ind+" por vía individual, "+colOnly+" solo por vía colectiva.";
+  var v=$("verdict");
+  if(hit){v.className="verdict ok";v.style.display="";v.textContent="Alcanza la meta del 80–90%.";}
+  else{v.style.display="none";}
+  $("fCx").textContent=(S.cx*CICLOS)+" premios al año · 10 ciclos";
+  $("fHi").textContent=(S.hi*2)+" personas al año";
+  $("fHe").textContent=(S.jef*S.he*2)+" personas cubiertas al año";
+  paintSteppers();
+}
+$("noRep").onchange=function(){S.noRep=this.checked;sim()};
+$("btnEst").onclick=function(){
+  ["team","cx","hi","he","jef","lg"].forEach(function(k){B[k]=S[k]});
+  budget();
+  $("estOut").innerHTML="Presupuesto actualizado en la lámina 11<b>"+fmt(lastTotal)+" al año</b>";
+};
+$("btnReset").onclick=function(){
+  ["team","cx","hi","he","jef","lg"].forEach(function(k){S[k]=BASE[k];B[k]=BASE[k]});
+  S.noRep=true;$("noRep").checked=true;
+  B.uCx=208025;B.uHi=600000;B.uHe=100000;B.uLg=1000000;B.uCump=30000;B.uProf=20000;
+  $("estOut").textContent="";sim();budget();
+};
+
+/* ===== cronograma ===== */
+function track(el,year,from,to){
+  for(var m=from;m<=to;m++){(function(m){
+    var ev=TL[year+"-"+m],b=document.createElement("button");
+    b.className="tl-m"+(ev?"":" empty");
+    b.innerHTML=M[m]+'<span class="pips">'+(ev?ev.map(function(e){return '<i class="'+(e.indexOf("Conexión")===0?"":"hi")+'"></i>'}).join(""):"")+'</span>';
+    if(ev)b.onclick=function(){
+      [].forEach.call(document.querySelectorAll(".tl-m"),function(c){c.classList.remove("on")});
+      b.classList.add("on");detail(M[m]+" "+year,ev)};
+    el.appendChild(b);
+  })(m)}
+}
+function detail(title,ev){
+  var d=$("tlDetail");
+  d.innerHTML="<h3>"+title+"</h3><ul>"+ev.map(function(e){return "<li>"+e+"</li>"}).join("")+"</ul>";
+  d.classList.remove("fade");void d.offsetWidth;d.classList.add("fade");
+}
+var t26=$("tl26");
+for(var z=0;z<8;z++){var e0=document.createElement("button");e0.className="tl-m empty";
+  e0.innerHTML=M[z]+'<span class="pips"></span>';t26.appendChild(e0)}
+track(t26,2026,8,11);track($("tl27"),2027,0,11);
+detail("Sep 2026",TL["2026-8"]);
+document.querySelectorAll("#tl26 .tl-m")[8].classList.add("on");
+
+/* ===== calendario de cumpleaños ===== */
+var curM=new Date().getMonth();
+var counts=[];for(var q=0;q<12;q++)counts[q]=BD.filter(function(x){return x.m===q}).length;
+$("months").innerHTML=M.map(function(m,i){
+  return '<button class="mo'+(i===curM?" on":"")+'" data-m="'+i+'">'+m+'<b>'+counts[i]+'</b></button>'}).join("");
+[].forEach.call($("months").children,function(b){
+  b.onclick=function(){curM=+b.getAttribute("data-m");
+    [].forEach.call($("months").children,function(c){c.classList.remove("on")});b.classList.add("on");drawCal()}});
+function drawCal(){
+  var l=BD.filter(function(x){return x.m===curM}).sort(function(a,b){return a.d-b.d});
+  $("calList").innerHTML=l.length?l.map(function(x){
+    return '<div class="bd-row"><span class="bd-day">'+x.d+'</span><div><b>'+x.n+'</b><span>'+x.c+'</span></div></div>'}).join("")
+    :'<div class="bd-row"><span style="font-size:12.5px;color:var(--muted);padding:10px">Sin cumpleaños en este mes.</span></div>';
+  $("calCount").textContent=l.length+" en "+MM[curM];
+  $("calList").classList.remove("fade");void $("calList").offsetWidth;$("calList").classList.add("fade");
+}
+drawCal();
+
+/* ===== gobierno ===== */
+$("people").innerHTML=PEOPLE.map(function(p,i){
+  return '<div class="person">'+av(p[0],i)+'<div><b>'+p[0]+'</b><span>'+p[1]+'</span></div></div>'}).join("");
+
+/* ===== presupuesto ===== */
+var openRow=-1,lastTotal=0;
+$("budBar").innerHTML=
+  '<div class="mini"><label>Personas en el equipo</label><input type="number" id="bTeam" min="1" max="200"></div>'+
+  '<div class="mini"><label>Ganadores por ciclo</label><input type="number" id="bCx" min="1" max="6"></div>'+
+  '<div class="mini"><label>Tamaño jefatura ganadora</label><input type="number" id="bJef" min="1" max="30"></div>'+
+  '<button class="btn-reset" id="bReset">Restablecer valores</button>';
+["bTeam","bCx","bJef"].forEach(function(id){
+  $(id).oninput=function(){
+    var v=parseInt(this.value,10);if(isNaN(v)||v<1)return;
+    if(id==="bTeam")B.team=v; if(id==="bCx")B.cx=v; if(id==="bJef")B.jef=v;
+    budget(true);
+  };
+});
+$("bReset").onclick=function(){$("btnReset").click();go(idx)};
+
+function budget(skipBar){
+  var rows=[
+   {id:"uCx",n:"Conexión · premios del ciclo",u:B.uCx,q:B.cx*CICLOS,qt:B.cx*CICLOS+" premios",
+    d:"Se entregan "+B.cx+" premios en cada uno de los 10 ciclos del año. Las cuatro opciones son alternativas entre las que elige la persona ganadora; el valor unitario mostrado es el promedio de las cuatro. Si el comité rota hacia las opciones más económicas, el total baja.",
+    o:["Bono Aliados $200.000","Jaime Duque + Cine $178.300","Multiparque + Cine $188.800","Kit Institucional $265.000"]},
+   {id:"uHi",n:"Huella Individual · bono semestral",u:B.uHi,q:B.hi*2,qt:(B.hi*2)+" entregas",
+    d:"Se acompaña siempre del almuerzo con Rectoría o Vicerrectoría como componente de pertenencia institucional.",
+    o:["Falabella","Compensar"]},
+   {id:"uHe",n:"Huella de Equipo · jornada de bienestar",u:B.uHe,q:B.jef*B.he*2,qt:B.jef+" pers. × "+(B.he*2),
+    d:"Jornada de bienestar fuera de la Universidad para toda la jefatura ganadora, con un costo estimado de $100.000 por persona. El equipo elige la modalidad de mayor interés.",o:[]},
+   {id:"uLg",n:"Legado del Año · bono anual",u:B.uLg,q:B.lg,qt:B.lg+(B.lg===1?" persona":" personas"),
+    d:"Único reconocimiento anual, entregado en la Gala frente a toda la Dirección.",
+    o:["Falabella","Aviatur","Compensar"]},
+   {id:"uCump",n:"Cumpleaños · bono Unisabana Dinning",u:B.uCump,q:B.team,qt:B.team+" personas",
+    d:"Una entrega por persona al año. El día del cumpleaños se envía automáticamente un correo a todo el equipo y una tarjeta personalizada a la persona.",o:[]},
+   {id:"uProf",n:"Día de la profesión · bono Unisabana Dinning",u:B.uProf,q:B.team,qt:B.team+" personas",
+    d:"Una entrega por persona en la fecha de su profesión. ⚠ Supone que las 14 profesiones del listado cubren a todo el equipo.",o:[]}
+  ];
+  var total=rows.reduce(function(a,r){return a+r.u*r.q},0);
+  lastTotal=total;
+  $("budget").innerHTML=rows.map(function(r,i){
+    return '<div class="bud-row'+(openRow===i?" on":"")+'">'+
+      '<button class="bud-tog" data-r="'+i+'">'+(openRow===i?"−":"+")+'</button>'+
+      '<span class="bud-nm" data-r="'+i+'">'+r.n+'</span>'+
+      '<span class="c-unit">'+(r.id?'<input class="num-in" type="number" data-u="'+r.id+'" value="'+r.u+'" step="1000" min="0">':'<input class="num-in" value="Sin costo" disabled>')+'</span>'+
+      '<span class="c-qty" style="font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right">'+r.qt+'</span>'+
+      '<span class="bud-am">'+(r.u*r.q?fmt(r.u*r.q):"Sin costo")+'</span></div>'+
+      '<div class="bud-detail'+(openRow===i?" on":"")+'">'+
+      (r.u*r.q?'<div class="calc">'+fmt(r.u)+' × '+r.q+' = '+fmt(r.u*r.q)+'</div>':"")+
+      '<p>'+r.d+'</p>'+(r.o.length?'<div class="opts">'+r.o.map(function(o){return "<span>"+o+"</span>"}).join("")+'</div>':"")+
+      '</div>';
+  }).join("");
+  [].forEach.call($("budget").querySelectorAll("[data-r]"),function(b){
+    b.onclick=function(){var i=+b.getAttribute("data-r");openRow=(openRow===i?-1:i);budget(true)}});
+  [].forEach.call($("budget").querySelectorAll("[data-u]"),function(inp){
+    inp.oninput=function(){var v=parseInt(this.value,10);if(isNaN(v)||v<0)return;
+      B[this.getAttribute("data-u")]=v;budget(true)};
+  });
+  $("budTotal").textContent=fmt(total);
+  $("pp").textContent=fmt(total/Math.max(1,B.team));
+  if(!skipBar){$("bTeam").value=B.team;$("bCx").value=B.cx;$("bJef").value=B.jef}
+}
+
+/* ===== arranque ===== */
+sim();budget();
+slides[0].classList.add("is-active");
+$("prog").style.width=(1/slides.length*100)+"%";
+$("count").textContent="01 / "+pad(slides.length);
+})();
+</script>
+</body>
+</html>
